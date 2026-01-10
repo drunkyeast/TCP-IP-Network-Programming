@@ -35,11 +35,11 @@ int main(int argc, char *argv[])
 	fputs("You are awesome! \n", writefp);
 	fflush(writefp);
 	
-	shutdown(fileno(readfp), SHUT_WR); // 注意这一行，也可以改成下面注释的那一行。
-	// shutdown(fileno(writefp), SHUT_WR);
+	shutdown(fileno(writefp), SHUT_WR);
 	fclose(writefp);
 	
-	fgets(buf, sizeof(buf), readfp); fputs(buf, stdout); 
+	fgets(buf, sizeof(buf), readfp); 
+	fputs(buf, stdout); 
 	fclose(readfp);
 	return 0;
 }

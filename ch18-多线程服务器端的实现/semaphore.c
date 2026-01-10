@@ -11,9 +11,8 @@ static int num;
 int main(int argc, char* argv[])
 {
     pthread_t id_t1, id_t2;
-    sem_init(&sem_one, 0, 0);
-    sem_init(&sem_two, 0, 1);
-
+    sem_init(&sem_one, 0, 0); // 信号量初始为0
+    sem_init(&sem_two, 0, 1); // 信号量初始为1
     pthread_create(&id_t1, NULL, read, NULL);
     pthread_create(&id_t2, NULL, accu, NULL);
 
@@ -22,7 +21,6 @@ int main(int argc, char* argv[])
 
     sem_destroy(&sem_one);
     sem_destroy(&sem_two);
-
     return 0;
 }
 
@@ -32,11 +30,10 @@ void* read(void* arg)
     {
         fputs("Input num: ", stdout);
 
-        sem_wait(&sem_two);
-        scanf("%d", &num);
-        sem_post(&sem_one);
+        sem_wait(&sem_two); // -1, 信号量为0时不能再-1, 调用sem_wait函数会阻塞. 直到其他线程+1
+        scanf("%d", &num); // 前面信号量变为0的话, 这段代码就是临界区了.
+        sem_post(&sem_one); // +1
     }
-
     return NULL;
 }
 
@@ -45,11 +42,10 @@ void* accu(void* arg)
     int sum = 0;
     for(int i = 0; i < 5; i++)
     {
-        sem_wait(&sem_one);
+        sem_wait(&sem_one); // -1
         sum += num;
-        sem_post(&sem_two);
+        sem_post(&sem_two); // +1
     }
     printf("Result: %d\n", sum);
-
     return NULL;
 }

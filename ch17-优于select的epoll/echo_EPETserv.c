@@ -68,11 +68,11 @@ int main(int argc, char* argv[])
                 clnt_addr_sz = sizeof(clnt_addr);
                 clnt_sock = accept(serv_sock, 
                     (struct sockaddr*)&clnt_addr, &clnt_addr_sz);
-                setnonblockingmode(clnt_sock);
+                setnonblockingmode(clnt_sock); // 套接字设置成阻塞
                 if(clnt_sock == -1)
                     error_handling("aceept() error");
 
-                event.events = EPOLLIN | EPOLLET;
+                event.events = EPOLLIN | EPOLLET; // 这儿也设置什么阻塞.
                 event.data.fd = clnt_sock;
                 epoll_ctl(epfd, EPOLL_CTL_ADD, clnt_sock, &event);
                 printf("Connected client: %d\n", clnt_sock);

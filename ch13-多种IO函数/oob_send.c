@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
 
     write(sock, "123", strlen("123"));
     send(sock, "4", strlen("4"), MSG_OOB);
+    sleep(3);
     write(sock, "567", strlen("567"));
     send(sock, "890", strlen("890"), MSG_OOB);
     close(sock);

@@ -34,21 +34,19 @@ int main(int argc, char *argv[])
 
 void *thread_dec(void *arg)
 {
-
-    pthread_mutex_lock(&mutex);
-    for (int i = 0; i < 5000000; i++)
+    for (int i = 0; i < 5000000; i++) {
+        pthread_mutex_lock(&mutex); // 注意, 这里临界区小. 太小了会导致频繁的加锁解锁.
         num += 1;
-    pthread_mutex_unlock(&mutex);
-
+        pthread_mutex_unlock(&mutex);
+    }
     return NULL;
 }
 
 void *thread_inc(void *arg)
 {
-    pthread_mutex_lock(&mutex);
+    pthread_mutex_lock(&mutex); // 注意, 这里临界区很大. 太大了会阻塞其他线程.
     for (int i = 0; i < 5000000; i++)
         num -= 1;
     pthread_mutex_unlock(&mutex);
-
     return NULL;
 }

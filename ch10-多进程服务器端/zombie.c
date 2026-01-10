@@ -12,8 +12,10 @@ int main(int argc, char* argv[])
     }
     else
     {
-        printf("Child Process ID: %d\n", pid);
-        sleep(30);
+        for (int i = 0; i < 30; i+=3) {
+            printf("time: %d\n", i);
+            sleep(3);
+        }
     }
 
     if(pid == 0)

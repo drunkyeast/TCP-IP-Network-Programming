@@ -39,17 +39,17 @@ int main(int argc, char* argv[])
 
     while(1)
     {
-        str_len = recv(clnt_sock, buf, BUF_SIZE - 1, MSG_PEEK|MSG_DONTWAIT);
+        str_len = recv(clnt_sock, buf, BUF_SIZE - 1, MSG_PEEK|MSG_DONTWAIT); // 不从缓冲区读走数据, 只是查看数据
         if(str_len > 0)
             break;
     }
 
     buf[str_len] = 0;
-    printf("Buffering %d bytes: %s\n", str_len, buf);
+    printf("Buffering %d bytes: %s\n", str_len, buf); // 输出: Buffering 4 bytes: 123
 
-    str_len = recv(clnt_sock, buf, BUF_SIZE - 1, 0);
+    str_len = recv(clnt_sock, buf, BUF_SIZE - 1, 0); // 从缓冲区读走数据
     buf[str_len] = 0;
-    printf("Read again: %s\n", buf);
+    printf("Read again: %s\n", buf); // 输出: Read again: 123
 
     close(serv_sock);
     close(clnt_sock);

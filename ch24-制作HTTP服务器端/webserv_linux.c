@@ -61,26 +61,41 @@ void *request_handler(void *arg)
     char ct[15];
     char file_name[30];
 
-    clnt_read = fdopen(clnt_sock, "r");
+    clnt_read = fdopen(clnt_sock, "r"); // 把sock文件描述符转化为FILE结构体指针
     clnt_write = fdopen(dup(clnt_sock), "w");
-    fgets(req_line, SMALL_BUF, clnt_read);
-    if (strstr(req_line, "HTTP/") == NULL)
+    fgets(req_line, SMALL_BUF, clnt_read); //  fget的源是FILE指针clnt_read, 目的是req_line. 关于源和目的, 很难记的, 不统一.
+    // fget与fputs都是C语言的函数. fgets是读取一行字符串. 
+    // getline也是读取一行, 遇到回车结束. C语言也有getline, 属于POSIX标准, 但我熟悉的getline是C++的标准库, <iostream>和<string>下面的.
+    if (strstr(req_line, "HTTP/") == NULL) // 类似C++的find, 查找子串, C++的substr是截取子串.
     {
         send_error(clnt_write);
         fclose(clnt_read);
         fclose(clnt_write);
-        return;
+        return NULL;
     }
-
+    // 输出req_line到终端的多种方式. 
+    printf("--------------------------------测试多种输出方法--------------------------------\n");
+    printf("%s", req_line);
+    fprintf(stdout, "%s", req_line);
+    puts(req_line); // puts会额外加一个'\n', 其他的包括fputs都不会加.
+    fputs(req_line, stdout);
+    fputs(req_line, fdopen(1, "w")); // 这儿没有关闭文件描述符, 内存泄漏!!!
+    write(1, req_line, strlen(req_line)); // 系统调用.
+    printf("--------------------------------测试多种输出方法结束--------------------------------\n");
+    // 其实strtok的正式描述还是很准确的: /* Divide S into tokens separated by characters in DELIM.  */
+    // 我用人话描述, "GET /index.html HTTP/1.1"只要遇到了" /"里面的任意一个分隔符就会分割, 替换成\0.
+    // 分隔符连续的话当做一个分隔符. 下次调用时用NULL参数, 继续从上次位置分割. 这个strtok是真几把难记, 不要记!! 纯浪费时间.
     strcpy(method, strtok(req_line, " /"));
     strcpy(file_name, strtok(NULL, " /"));
     strcpy(ct, content_type(file_name));
+
+
     if (strcmp(method, "GET") != 0)
     {
         send_error(clnt_write);
         fclose(clnt_read);
         fclose(clnt_write);
-        return;
+        return NULL;
     }
 
     fclose(clnt_read);

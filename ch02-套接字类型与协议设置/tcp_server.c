@@ -44,6 +44,9 @@ int main(int argc, char *argv[])
         error_handling("accept() error!");
     
     write(clnt_sock, message, sizeof(message));
+    printf("sleep 10 seconds\n");
+    sleep(10);
+    printf("wake up and close the socket\n");
     close(serv_sock);
     close(clnt_sock);
 

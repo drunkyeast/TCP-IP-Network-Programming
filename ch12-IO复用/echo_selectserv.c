@@ -40,8 +40,8 @@ int main(int argc, char* argv[])
         error_handling("listen() error");
     
     FD_ZERO(&reads);
-    FD_SET(serv_sock, &reads);
-    fd_max = serv_sock;
+    FD_SET(serv_sock, &reads); // 哦, 是这样用的.
+    fd_max = serv_sock; // 对对对.
 
     while(1)
     {
@@ -51,33 +51,33 @@ int main(int argc, char* argv[])
         
         if((fd_num = select(fd_max + 1, &cpy_reads, 0, 0, &timeout)) == -1)
             break;
-        if(fd_num == 0)
+        if(fd_num == 0) // 超时
             continue;
         
         for(int i = 0; i < fd_max + 1; i++)
         {
-            if(FD_ISSET(i, &cpy_reads))
+            if(FD_ISSET(i, &cpy_reads)) // 检查文件描述符 fd 是否在集合 set 中被标记为“就绪”状态。
             {
-                if(i == serv_sock)
+                if(i == serv_sock) // 监听套接字, 发现新连接
                 {
                     addr_sz = sizeof(clnt_addr);
                     clnt_sock = accept(serv_sock, 
                         (struct sockaddr*)&clnt_addr, &addr_sz);
-                    FD_SET(clnt_sock, &reads);
+                    FD_SET(clnt_sock, &reads); // 把新连接的客户端加入监控名单.
                     if(fd_max < clnt_sock)
                         fd_max = clnt_sock;
                     printf("Connected client: %d\n", clnt_sock);
                 }
-                else
+                else // 已连接客户端
                 {
                     str_len = read(i, buf, BUF_SIZE);
-                    if(str_len == 0)
+                    if(str_len == 0) // 客户端断开连接, 通过read的返回值来判断? 是的read返回0表示读到文件末尾或连接断开(客户端主动关闭连接,EOF).
                     {
-                        FD_CLR(i, &reads);
+                        FD_CLR(i, &reads); // 把客户端从监控名单中移除.
                         close(i);
                         printf("Closed client: %d\n", i);
                     }
-                    else
+                    else // 向客户端发送数据
                     {
                         write(i, buf, str_len);
                     }
